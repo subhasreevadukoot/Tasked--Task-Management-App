@@ -1,0 +1,30 @@
+{% extends "basicPage.html" %}
+{% block content %}
+<div class="main"  >
+  <h4 style="margin-bottom:20px">Add Task Board</h4>
+    <form method="post" action="/addBoard" >
+  <div class="row">
+    <div class="col-sm-6">
+      <input type="text" id="task_board_name" name="task_board_name"  maxlength="100" placeholder="Task Board" required>
+      <textarea id="description" name="description"  placeholder="Description.." style="height:100px;margin-top:10px" required></textarea>
+    </div>
+      <div class="col-sm-6">
+        <!--displays list of users -->
+        {% for user in all_user %}
+          {% if (users|string() != user.emailaddress|string()) %}
+              <input type="checkbox" id="usernames" name="usernames" value="{{ user.key.id() }}"/> {{ user.emailaddress }}<br>
+          {% endif %}
+          {% endfor %}
+    </div>
+    </div>
+    <div class="row" style="margin-Top:100px">
+    <div class="col-sm-6">
+
+        <input type="submit"  id="button_Add" value="Add Task Board" name="button"  style="width:200px;background:#C39BD3;margin-left:50px" onclick="clicked='Add' "/>
+        <input type="submit"  id="button_Cancel" value="Cancel" name="button"  style="width:200px;background:#F1948A" onclick="clicked='Cancel' "/>
+
+    </div>
+  </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "basicPage.html" %}
+{% block content %}
+<div class="main"  >
+  {% if message %}
+  <div class="row" id="messge_bar">
+        <div class="col-sm-12" style="background:#F1948A">
+          {{ message }}
+          </div>
+            </div>
+            {% endif %}
+  <h4 style="margin-bottom:20px">{{task_header}}</h4>
+
+    <form method="post" onsubmit="return validateData()" {% if task_info %} action="/editTask"  {% else %}  action="/addTask"  {% endif %} >
+  <div class="row">
+    <div class="col-sm-6">
+      {% if task_info %}
+          {% if task_info.name %}
+           {% if action=='EDIT' %}
+           <div class="row">
+             <div class="col-sm-2">
+               <img width="60px" height="60px" style="float:left;" src="/img/title.png">
+
+         </div>
+         <div class="col-sm-10">
+             <input type="text" id="task_name" name="task_name"  value="{{task_info.name}}" placeholder="Task Title" maxlength="100"  {% if message %} onfocus="removeMessage()" {% endif %}>
+         </div>
+         </div>
+         <img width="60px" height="60px" src="/img/duedate.png"> Due Date <input type="date" id="due_date" name="due_date"  value="{{task_info.due_date}}" style="margin-Top:10px;height:50px;">
+
+            {% else %}
+            <div class="row">
+              <div class="col-sm-2">
+                <img width="60px" height="60px" style="float:left;" src="/img/title.png">
+
+          </div>
+          <div class="col-sm-10">
+              <input type="text" id="task_name" name="task_name"  maxlength="100" placeholder="Task Title" value="{{task_info.name}}" disabled >
+          </div>
+          </div>
+        <img width="60px" height="60px" src="/img/duedate.png"> Due Date <input type="date" id="due_date" name="due_date"  value="{{task_info.due_date}}" style="margin-Top:10px;height:50px;" disabled>
+      {% endif %}
+            {% endif %}
+
+     {% else %}
+     <div class="row">
+       <div class="col-sm-2">
+         <img width="60px" height="60px" style="float:left;" src="/img/title.png">
+
+   </div>
+   <div class="col-sm-10">
+       <input type="text" id="task_name" name="task_name"  placeholder="Task Title"  maxlength="100" {% if message %} onfocus="removeMessage()" {% endif %}>
+   </div>
+   </div>
+   <!-- min due date is set for validation purposes-->
+ <img width="60px" height="60px" src="/img/duedate.png"> Due Date <input type="date" id="due_date" name="due_date" min="2020-04-01" style="margin-Top:10px;height:50px;" >
+     {% endif %}
+
+     {% if task_info %}
+          {% if action=='EDIT' %}
+
+
+          {% else %}
+
+          <div class="row">
+            <div class="col-sm-2">
+       <img width="60px" height="60px" src="/img/tasks.png">
+       </div>
+       <div class="col-sm-10">
+         <select name="assign_user" style="margin-Top:10px;width:100%">
+             <option value="" selected disabled hidden>select user to Assign task</option>
+             {% for userI in board_users %}
+                 {% if (users|string() != userI[1]|string()) %}
+                   <option value="{{ userI[0] }}">{{ userI[1] }}</option>
+                 {% endif %}
+             {% endfor %}
+           </select>
+           </div>
+           </div>
+
+           {% endif %}
+
+           {% else %}
+           <div class="row">
+             <div class="col-sm-2">
+        <img width="60px" height="60px" src="/img/tasks.png">
+        </div>
+        <div class="col-sm-10">
+          <select name="assign_user" style="margin-Top:10px;width:100%">
+              <option value="" selected disabled hidden>select user to Assign task</option>
+              {% for userI in board_users %}
+                  {% if (users|string() != userI[1]|string()) %}
+                    <option value="{{ userI[0] }}">{{ userI[1] }}</option>
+                  {% endif %}
+              {% endfor %}
+            </select>
+            </div>
+            </div>
+            {% endif %}
+
+
+
+      </div>
+</div>
+
+    <div class="row" style="margin-Top:50px">
+    <div class="col-sm-6">
+        <input type="hidden" value=" {{task_board_id}}" name="id"/>
+        {% if task_info %}
+            <input type="hidden" value=" {{task_info.key.id()}}" name="task_id"/>
+        {% endif %}
+        <input type="submit"  id="button_Add" {% if task_info %}  {% if action=='EDIT' %} value = "Update Task" {% else %} value ="Assign Task" {% endif %} {% else %}  value="Add Task"  {% endif %} name="button"  style="width:200px;background:#C39BD3;margin-left:20px" onclick="clicked='Add' "/>
+        <input type="submit"  id="button_Cancel" value="Cancel" name="button"  style="width:200px;background:#F1948A" onclick="clicked='Cancel' "/>
+
+    </div>
+  </div>
+  </form>
+</div>
+<script type="text/javascript">
+// alerts user if name and due date is null
+   var clicked;
+   function validateData(){
+
+     if(clicked=='Add'){
+         name = document.getElementById("task_name").value
+         selectedDate = document.getElementById("due_date").value;
+         if(name.length>0 && selectedDate.length>0){
+            return true;
+         }else{
+           alert("Name and Due date should not be null!!")
+            return false;
+         }
+     }else{
+       return true;
+     }
+
+   }
+
+   function removeMessage(){
+     var element = document.getElementById("messge_bar");
+     element.parentNode.removeChild(element);
+   }
+ </script>
+{% endblock %}

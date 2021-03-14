@@ -1,0 +1,45 @@
+{% extends "basicPage.html" %}
+{% block content %}
+<div class="main"  >
+<h4 style="margin-bottom:20px">View Task Board</h4>
+  <div class="row">
+    <div class="col-sm-8">
+      <a href="/addBoard" class="btn btn-info" style="width:100px">Create</a>
+
+    </div>
+
+    </div>
+    <!--view all task boards and details-->
+    <div class="row" >
+      <div class="col-sm-12">
+    <div class="tableFixHead" style="margin-top:10px">
+  <table>
+    <thead>
+      <tr><th>Task Board</th><th>Description</th><th>Tasks</th><th>Assigned</th><th>Unassigned</th><th>Completed</th></tr>
+      {% for taskB in task_board_data %}
+          <tr><td><li><a href="/boardInfo?id={{ taskB[0] }}"> {{taskB[1]}}</a></li></td>
+          <td>{{taskB[2]}}</td>
+          <td>{{taskB[3] | length}}</td>
+          <td>{{taskB[4]}}</td>
+          <td>{{taskB[5]}}</td>
+          <td>{{taskB[6]}}</td> </tr>
+      {% endfor %}
+      {% for taskInv in invited_task_board %}
+          <tr><td><li><a href="/boardInfo?id={{ taskInv[0] }}"> {{taskInv[1]}}</a></li></td>
+          <td>{{taskInv[2]}}</td>
+          <td>{{taskInv[3] | length}}</td>
+          <td>{{taskInv[4]}}</td>
+          <td>{{taskInv[5]}}</td>
+          <td>{{taskInv[6]}}</td> </tr>
+      {% endfor %}
+    </thead>
+    <tbody>
+
+    </tbody>
+  </table>
+  </div>
+</div>
+  </div>
+    </div>
+
+{% endblock %}

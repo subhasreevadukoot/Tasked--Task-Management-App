@@ -1,0 +1,123 @@
+{% extends "basicPage.html" %}
+{% block content %}
+<div class="main">
+<!--innovative dashboard for easy user interaction-->
+
+  <div class="row w-100">
+    <!-- shows created and invited task boards-->
+        <div class="col-md-3">
+            <div class="card border-info" style="border: 1.5px solid;">
+                <div class="text-info text-center mt-3"><h5>Boards</h5></div>
+                {% set ftotal= {'total': 0} %}
+                {% if invited_task_board %}
+                  {% if ftotal.update({'total': ftotal.total + invited_task_board|length }) %}{% endif %}
+                {% endif %}
+                {% if task_board_data %}
+                  {% if ftotal.update({'total': ftotal.total + task_board_data|length }) %}{% endif %}
+                {% endif %}
+                <div class="text-info text-center mt-2"><h3>{{ftotal.total}}</h3></div>
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-secondary" style="border: 1.5px solid;">
+              <div class="text-secondary text-center mt-3"><h5>Tasks</h5></div>
+              {% set ftotal= {'total': 0} %}
+              {% if invited_task_board %}
+              {% for taskI in invited_task_board %}
+                  {% if ftotal.update({'total': ftotal.total + taskI.tasks|length}) %}{% endif %}
+              {% endfor %}
+              {% endif %}
+              {% if task_board_data %}
+              {% for taskB in task_board_data %}
+                  {% if ftotal.update({'total': ftotal.total + taskB.tasks|length}) %}{% endif %}
+              {% endfor %}
+              {% endif %}
+              <div class="text-secondary text-center mt-2"><h3>{{ftotal.total}}</h3></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+              <div class="card border-primary" style="border: 1.5px solid;">
+                <div class="text-primary text-center mt-3"><h5>Completed</h5></div>
+                <div class="text-primary text-center mt-2"><h3>{{completedTaskList|length}}</h3></div>
+              </div>
+          </div>
+          <div class="col-md-3">
+              <div class="card border-warning " style="border: 1.5px solid;">
+                <div class="text-warning text-center mt-3"><h5>Today</h5></div>
+                <div class="text-warning text-center mt-2"><h3>{{completedToday}}</h3></div>
+              </div>
+          </div>
+     </div>
+     <!--to display taskboars the user has created -->
+  <div class="row" style="margin-top:10px">
+    <div class="col-sm-4" style="padding:10px"><div class="p-1 mb-2 text-white" style="background:#ABEBC6">Created TaskBoards</div>
+      {% if task_board_data %}
+      {% for taskB in task_board_data %}
+      <div class="card boder shadow-lg p-3 mb-2 bg-white" style="margin-bottom:10px">
+        <div class="card-body text-center">
+          <h5>{{taskB.name}}</h5>
+          <p class="card-text">{{taskB.desc}}</p>
+          <a href="/boardInfo?id={{ taskB.key.id() }}" class="btn btn-info"><i class="fa fa-eye"></i>View</a>
+          <a href="#" class="btn btn-secondary">Tasks : {{taskB.tasks | length}}</a>
+          {% for board in final_board_list %}
+                {% if (board.key.id()== taskB.key.id()) %}
+                      <a class="btn btn-warning " style="border-radius: 50%;">
+                          <i class="fa fa-user"></i>{{ board.inv_users| length  }}
+                      </a>
+                {% endif %}
+
+          {% endfor %}
+
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+<!--to display taskboars the user is invited to-->
+    <div class="col-sm-4" style="padding:10px"><div class="p-1 mb-2 text-white" style="background:#F8ABE7">Invited TaskBoards</div>
+      {% if invited_task_board %}
+      {% for taskInv in invited_task_board %}
+      <div class="card boder shadow-lg p-3 mb-2 bg-white" style="margin-bottom:10px">
+        <div class="card-body text-center">
+          <h5>{{taskInv.name}}</h5>
+          <p class="card-text">{{taskInv.desc}}</p>
+          <a href="/boardInfo?id={{ taskInv.key.id() }}" class="btn btn-info"><i class="fa fa-eye"></i>View</a>
+            <a href="#" class="btn btn-secondary">Tasks : {{taskInv.tasks | length}}</a>
+            {% for inv_board in final_inv_board_list %}
+                  {% if (inv_board.key.id()== taskInv.key.id()) %}
+                        <a class="btn btn-warning " style="border-radius: 50%;">
+                            <i class="fa fa-user"></i>{{ inv_board.inv_users| length  }}
+                        </a>
+                  {% endif %}
+
+            {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+<!--to display completed tasks in taskboards the user is part of-->
+    <div class="col-sm-4 "  style="padding:10px"><div class="p-1 mb-2 text-white" style="background:#DFB7EF">Completed Tasks</div>
+        {% if completedTaskList %}
+        {% for taskComp in completedTaskList %}
+        <div class="card boder shadow-lg p-3 mb-2 bg-white"  style="margin-bottom:10px">
+          <div class="card-body text-center">
+            <h5>{{taskComp[0]}}</h5>
+            <p class="card-text">Due Date : {{taskComp[1]}}</p>
+            {% if taskComp[2] %}
+              <a class="btn btn-outline-warning " title="Assigned User">
+                  <i class="fa fa-user"></i>{{taskComp[2]}}
+              </a>
+              {% endif %}
+              <p class="card-text"  style="margin-top:10px">Completed On : {{taskComp[3]}}</p>
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+
+  </div>
+
+</div>
+{% endblock %}

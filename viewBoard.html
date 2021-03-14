@@ -1,0 +1,260 @@
+{% extends "basicPage.html" %}
+{% block content %}
+<div class="main"  >
+  <h4 style="margin-bottom:10px">Task Board</h4>
+  <div class="row">
+    <div class="col-sm-6">
+      <!-- All taskboard operations-->
+      {% if (users|string() == board_info.created_by|string()) %}
+        <input type="text" id="task_board_name"   name="task_board_name" maxlength="100" value="{{board_info.name}}"  >
+        <textarea id="description"   name="description"  style="height:100px;margin-top:10px"> {{board_info.desc}}</textarea>
+      {% else %}
+        <input type="text" id="task_board_name" maxlength="100"  name="task_board_name" value="{{board_info.name}}" disabled >
+        <textarea id="description"  name="description"  style="height:100px;margin-top:10px" disabled> {{board_info.desc}}</textarea>
+      {% endif %}
+      </div>
+        <div class="col-sm-3">
+          <!--to remove users in taskboard-->
+                {% if (users|string() == board_info.created_by|string()) %}
+                 <select title="Remove user from Board" id="inv_user" style="background-color:#F5B7B1" onchange="deleteUser(this,'delete')">
+                  <option value="" selected disabled hidden>Remove user from Board</option>
+                  {% for userI in board_users %}
+
+                      {% if (users|string() != userI[1]|string()) %}
+                        <option value="{{ userI[0] }}" name="{{ userI[1] }}">{{ userI[1] }}</option>
+                      {% endif %}
+                  {% endfor %}
+                </select>
+
+<!-- to invite users-->
+                <select title="Invite User" id="del_user" style="background-color:#F7DC6F;margin-top:10px;" onchange="deleteUser(this,'invite')" >
+                 <option value="" selected disabled hidden>Invite User</option>
+                 {% for all_use in all_user %}
+                          {% if (users|string() != all_use.emailaddress|string()) %}
+                        <option value="{{ all_use.key.id() }}">{{ all_use.emailaddress }}</option>
+                        {% endif %}
+                  {% endfor %}
+
+                </select>
+                {% endif %}
+<!--creator of the taskboard -->
+        <button style="margin-top:10px;width:100%;font-size:14px"  type="button" class="btn btn-primary">
+          <span class="badge badge-light"  ><i class="fa fa-user"></i> Creator </span>  {{board_info.created_by}}
+          </button>
+        </div>
+        <div class="col col-lg-2" style="margin-left:20px;">
+            {% if (users|string() == board_info.created_by|string()) %}
+            <input type="submit"   value="Update" name="button"  style="background:#85C1E9 ;" onMouseOver="this.style.background='#5499C7'" onMouseOut="this.style.background='#85C1E9'" onclick="renameTaskboard()" title="Edit details on the form before clicking Update."/>
+
+            <form method="post"  action="/editBoard" onsubmit="return checkDeleteUpdate()">
+              <input type="hidden" value="{{board_info.key.id()}}" name="id">
+              <input type="submit"  value="Delete" name="button"  style="background:#F1948A ;margin-top:10px;" onMouseOver="this.style.background='#EC7063'" onMouseOut="this.style.background='#F1948A'" onclick="clicked='Delete' "/>
+             </form>
+             {% endif %}
+            <form method="get" action="/addTask" >
+              <input type="hidden" value="{{board_info.key.id()}}" name="id">
+              <input type="submit"   value="Add Task" name="button"  style="background:#C39BD3  ;margin-top:10px;" onMouseOver="this.style.background='#BB8FCE'" onMouseOut="this.style.background='#C39BD3 '" onclick="clicked='Add' "/>
+           </form>
+        </div>
+    </div>
+    <div class="row w-100">
+          <div class="col-md-3">
+              <div class="card border-primary" style="border: 1.5px solid;">
+                  <div class="text-primary text-center mt-1"><h6 id="total"></h6></div>
+              </div>
+          </div>
+          <div class="col-md-3">
+              <div class="card border-secondary" style="border: 1.5px solid;">
+                <div class="text-secondary text-center mt-1"><h6 id="active">Active : </h6></div>
+              </div>
+          </div>
+          <div class="col-md-3">
+              <div class="card border-info" style="border: 1.5px solid;">
+                <div class="text-info text-center mt-1"><h6 id="complete">Completed : </h6></div>
+              </div>
+          </div>
+          <div class="col-md-3">
+              <div class="card border-warning" style="border: 1.5px solid;">
+                <div class="text-warning text-center mt-1"><h6>Completed Today :{{completedToday}} </h6></div>
+              </div>
+          </div>
+          </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="tableFixHeadTask" style="margin-top:10px;">
+      <table id="taskTable">
+        <thead>
+          <!-- Task details-->
+          <tr><th>Task Title</th><th>Due Date</th><th>Assigned To</th><th>Status</th><th>Action</th></tr>
+          {% for task in task_info %}
+                <tr  {% if task[5]==True  %} style="color:#E74C3C;"  {% endif %} ><td  style="max-width:300px">{{task[0]}}</td>
+                <td>{{task[1]}}</td>
+                <td>{{task[2]}}</td>
+                <td style="width:220px;font-weight: bold;">{% if task[3]  %} {{task[3]}} <br> On  {{task[6]}}   {% endif %}</td>
+                <td>
+                <a title="Edit Task" href="/editTask?boardid={{ board_info.key.id() }}&id={{ task[4]}}&mode=EDIT" class="btn btn-warning"><i class="fa fa-edit"></i></a>
+                  {% if not task[2]  %}  {% if not task[3]  %}  <a title="Assign User" href="/editTask?boardid={{ board_info.key.id() }}&id={{ task[4]}}&mode=ASSI" class="btn btn-primary"><i class="fa fa-user"></i></a> {% endif %} {% endif %}
+               {% if not task[3]  %} <a title="Complete Task" href="/editTask?boardid={{ board_info.key.id() }}&id={{ task[4]}}&mode=COMP" onclick="return complateUser();" class="btn btn-info"><i class="fa fa-check"></i></a>{% endif %}
+               <a title="Delete Task" href="/editTask?boardid={{ board_info.key.id() }}&id={{ task[4]}}&mode=DEL" onclick="return deleteTask();" class="btn btn-secondary"><i class="fa fa-trash-o"></i></a>
+
+             </td></tr>
+
+            {% endfor %}
+
+        </thead>
+        <tbody>
+
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+    </div>
+
+<script type="text/javascript">
+  //delete user functionality
+   function deleteUser(sel,mode) {
+     var text = sel.options[sel.selectedIndex].text
+     var selectedUser = sel.options[sel.selectedIndex].value;
+     var message="";
+     var form = document.createElement("form");
+     form.setAttribute("method", "post");
+     form.setAttribute("action", '/editTask');
+     var hiddenField1 = document.createElement("input");
+
+     var hiddenField2 = document.createElement("input");
+     hiddenField2.setAttribute("type", "hidden");
+     hiddenField2.setAttribute("name", "selectedUser");
+     hiddenField2.setAttribute("value", selectedUser );
+
+     var hiddenField3 = document.createElement("input");
+     hiddenField3.setAttribute("type", "hidden");
+     hiddenField3.setAttribute("name", "id");
+     hiddenField3.setAttribute("value", {{board_info.key.id()}} );
+
+     if(mode=='delete'){
+          message = "Are you sure you want to remove "+text+" from this board ?"
+          hiddenField1.setAttribute("type", "hidden");
+          hiddenField1.setAttribute("name", "button");
+          hiddenField1.setAttribute("value", "Delete User" );
+
+     }else if (mode=='invite') {
+          message = "Are you sure you want to invite "+text+" to this board ?"
+          hiddenField1.setAttribute("type", "hidden");
+          hiddenField1.setAttribute("name", "button");
+          hiddenField1.setAttribute("value", "Invite User" );
+     }
+     if(confirm(message)){
+          form.appendChild(hiddenField1);
+          form.appendChild(hiddenField2);
+          form.appendChild(hiddenField3);
+          document.body.appendChild(form);
+          form.submit();
+      }
+}
+//asks confirmation when task completion is attempted
+function complateUser() {
+       if(confirm("Are you sure you want to Complete This Task ?")){
+            return true;
+       }else{
+         return false;
+       }
+}
+//confirmation before task is deleted
+function deleteTask() {
+       if(confirm("Are you sure you want to delete This Task ?")){
+            return true;
+       }else{
+         return false;
+       }
+}
+
+//for updating of taskboard name and description
+function renameTaskboard() {
+   var name = document.getElementById("task_board_name").value;
+   var desc = document.getElementById("description").value;
+   var form = document.createElement("form");
+   form.setAttribute("method", "post");
+   form.setAttribute("action", '/editBoard');
+   var hiddenField1 = document.createElement("input");
+   hiddenField1.setAttribute("type", "hidden");
+   hiddenField1.setAttribute("name", "button");
+   hiddenField1.setAttribute("value", "Update" );
+
+   var hiddenField3 = document.createElement("input");
+   hiddenField3.setAttribute("type", "hidden");
+   hiddenField3.setAttribute("name", "id");
+   hiddenField3.setAttribute("value", {{board_info.key.id()}} );
+
+   var hiddenField2 = document.createElement("input");
+   hiddenField2.setAttribute("type", "hidden");
+   hiddenField2.setAttribute("name", "task_board_name");
+   hiddenField2.setAttribute("value", name );
+
+   var hiddenField4 = document.createElement("input");
+   hiddenField4.setAttribute("type", "hidden");
+   hiddenField4.setAttribute("name", "description");
+   hiddenField4.setAttribute("value", desc );
+
+   form.appendChild(hiddenField1);
+   form.appendChild(hiddenField2);
+   form.appendChild(hiddenField3);
+   form.appendChild(hiddenField4);
+   document.body.appendChild(form);
+   form.submit();
+}
+//to check if all tasks and users are removed
+function checkDeleteUpdate() {
+  var clicked;
+      var taskData =  document.getElementById('taskTable').rows.length;
+
+      if(parseInt(taskData)==1 && checkUserExist()){
+        return true;
+      }else{
+        alert("Remove all tasks and users before delete!");
+        return false;
+      }
+    }
+
+//returns true if user exists in the taskboard, and false otherwise
+function checkUserExist() {
+    var IsExists = true;
+    var userCount =  document.getElementById('inv_user').options;
+    for(var i = 1; i < userCount.length; i++)
+    {
+
+            IsExists = false;
+            break;
+    }
+    return IsExists;
+  }
+
+
+function totalTask (){
+  var taskData =  document.getElementById('taskTable').rows.length;
+  return taskData-1;
+}
+document.getElementById("total").innerHTML = "Total : "+totalTask();
+//to get number of active tasks, i.e  tasks not completed
+function activeTask(){
+  count = 0;
+  table = document.getElementById("taskTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[3];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.length <= 0) {
+        count ++;
+      }
+
+    }
+  }
+  return count
+}
+document.getElementById("active").innerHTML = "Active : "+activeTask();
+document.getElementById("complete").innerHTML = "Completed : "+(totalTask()-activeTask());
+
+ </script>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+</head>
+<style>
+body, html {
+  height: 100%;
+  margin: 0;
+}
+.bg {
+
+  background-image: url("/img/back.png");
+
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale image */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: auto;
+}
+.caption {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  text-align: center;
+  color: #34495E;
+}
+.caption span.border {
+  color:   #2E4053 ;
+  padding: 18px;
+  font-size: 35px;
+  letter-spacing: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="caption">
+      <span class="border">Tasked</span><br><br>
+      <!--Login-->
+      <a href='{{ url }}' class="btn btn-success" style="width:100px; margin-top:20px;" >{{ url_string }}</a>
+
+    </div></div>
+
+</body>
+</html>
